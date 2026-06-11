@@ -17,4 +17,16 @@ urlpatterns = [
     path('tienda/', views.usuario_panel, name='usuario_panel'),
     path('tienda/pedido/crear/', views.crear_pedido, name='crear_pedido'),
     path('buscar/', views.buscar_vulnerable, name='buscar_vulnerable'),
+    
+    # Fuerza bruta
+    path('login-vulnerable/', views.login_vulnerable, name='login_vulnerable'),
+    path('login-seguro/', views.login_seguro, name='login_seguro'),
+
+# Sesiones
+    path('sesion-vulnerable/', views.sesion_vulnerable, name='sesion_vulnerable'),
+    path('sesion-segura/', views.sesion_segura, name='sesion_segura'),
+
+# Session Fixation
+    path('fixation-vulnerable/', views.fixation_vulnerable, name='fixation_vulnerable'),
+    path('fixation-segura/', views.fixation_segura, name='fixation_segura'),
 ]

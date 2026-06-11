@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Session Fixation Vulnerable · TiendaTest</title>
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'store/css/main.css' %}">
+</head>
+<body class="app-body">
+  {% include 'store/navbar.html' %}
+  <div class="app-container">
+    <section class="panel-section">
+      <div class="section-header">
+        <h2>📌 Session Fixation Vulnerable</h2>
+        <span class="badge badge-off">⚠️ Session ID fijable</span>
+      </div>
+      <div class="vuln-grid">
+        <div>
+          <p class="vuln-desc">El servidor acepta un session ID enviado por URL y lo asigna al usuario. Un atacante puede prefijar el session ID de su víctima.</p>
+          <div class="info-item" style="margin:1rem 0">
+            <span class="info-label">Session ID actual</span>
+            <span class="info-value" style="font-family:monospace;color:#f97316">{{ session_id }}</span>
+          </div>
+          {% if forzado %}
+            <div class="alert alert-error">⚠️ Session ID forzado desde URL: <code>{{ forzado }}</code></div>
+          {% endif %}
+        </div>
+        <div class="ataque-info">
+          <h4>🧪 Pasos del ataque</h4>
+          <ol class="attack-steps">
+            <li>El atacante genera un session ID conocido: <code>abc123</code></li>
+            <li>Envía a la víctima el link:<br/><code style="font-size:.75rem">http://127.0.0.1:8000/fixation-vulnerable/?sessionid=abc123</code></li>
+            <li>La víctima hace login — el server NO rota el session ID</li>
+            <li>El atacante usa <code>abc123</code> para acceder como la víctima</li>
+          </ol>
+          <a href="?sessionid=abc123forzado" class="btn btn-danger btn-sm" style="margin-top:1rem">Simular ataque →</a>
+        </div>
+      </div>
+    </section>
+    <section class="panel-section">
+      <div class="section-header">
+        <h2>🛡️ Defensa — Session Fixation</h2>
+        <span class="badge badge-ok">Protegido</span>
+      </div>
+      <a href="{% url 'fixation_segura' %}" class="btn btn-primary">Ver versión segura →</a>
+    </section>
+  </div>
+</body>
+</html>

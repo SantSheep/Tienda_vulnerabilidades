@@ -7,7 +7,25 @@
       <a href="{% url 'admin_panel' %}" class="nav-link">⚙️ Admin</a>
     {% endif %}
     <a href="{% url 'usuario_panel' %}" class="nav-link">🛍️ Tienda</a>
-    <a href="{% url 'buscar_vulnerable' %}" class="nav-link">🔍 Búsqueda</a>
+
+    <!-- Menú de seguridad -->
+    <div class="nav-dropdown">
+      <button class="nav-link nav-dropdown-btn">🔐 Seguridad ▾</button>
+      <div class="nav-dropdown-menu">
+        <span class="dropdown-label">SQL Injection</span>
+        <a href="{% url 'buscar_vulnerable' %}" class="dropdown-item">💉 Búsqueda vulnerable</a>
+        <span class="dropdown-label">Fuerza Bruta</span>
+        <a href="{% url 'login_vulnerable' %}" class="dropdown-item">🔓 Login vulnerable</a>
+        <a href="{% url 'login_seguro' %}" class="dropdown-item">🛡️ Login seguro</a>
+        <span class="dropdown-label">Sesiones</span>
+        <a href="{% url 'sesion_vulnerable' %}" class="dropdown-item">🍪 Sesión vulnerable</a>
+        <a href="{% url 'sesion_segura' %}" class="dropdown-item">🛡️ Sesión segura</a>
+        <span class="dropdown-label">Session Fixation</span>
+        <a href="{% url 'fixation_vulnerable' %}" class="dropdown-item">📌 Fixation vulnerable</a>
+        <a href="{% url 'fixation_segura' %}" class="dropdown-item">🛡️ Fixation segura</a>
+      </div>
+    </div>
+
   </div>
   <div class="nav-user">
     <span class="nav-username">👤 {{ request.user.username }}</span>
@@ -16,7 +34,25 @@
     {% endif %}
     <a href="{% url 'logout' %}" class="btn btn-ghost btn-sm">Salir</a>
   </div>
-  
-  <!-- contador carrito, requerido por usuario.js -->
   <span id="carrito-count" style="display:none">0</span>
+
+  <script>
+  const btn = document.querySelector('.nav-dropdown-btn');
+  const menu = document.querySelector('.nav-dropdown-menu');
+
+  btn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    menu.classList.toggle('open');
+  });
+
+  // Cierra al hacer click fuera
+  document.addEventListener('click', () => {
+    menu.classList.remove('open');
+  });
+
+  // Evita que el click dentro del menú lo cierre
+  menu.addEventListener('click', (e) => {
+    e.stopPropagation();
+  });
+</script>
 </nav>

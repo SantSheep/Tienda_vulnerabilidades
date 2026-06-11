@@ -175,3 +175,133 @@ def buscar_vulnerable(request):
         'query_ejecutada': query_ejecutada,
         'error': error,
     })
+
+
+# ─── FUERZA BRUTA (vulnerable) ───────────────────────────────────────────────
+from django.views.decorators.csrf import csrf_exempt
+
+@csrf_exempt  # ⚠️ vulnerable: sin protección CSRF para permitir scripts externos
+def login_vulnerable(request):
+    resultado = ""
+    intentos_log = []
+
+    if request.method == 'POST':
+        username = request.POST.get('username', '')
+        password = request.POST.get('password', '')
+        user = authenticate(request, username=username, password=password)
+
+        if user:
+            resultado = f"✅ ÉXITO — usuario: {username} | contraseña: {password}"
+        else:
+            resultado = f"❌ Fallido — usuario: {username} | contraseña: {password}"
+
+    return render(request, 'store/login_vulnerable.html', {
+        'resultado': resultado,
+    })
+
+
+# ─── LOGIN SEGURO (con protección fuerza bruta) ───────────────────────────────
+from django.core.cache import cache
+
+def login_seguro(request):
+    if request.user.is_authenticated:
+        return redirect('main')
+
+    error = ""
+    bloqueado = False
+
+    if request.method == 'POST':
+        username = request.POST.get('username', '')
+        password = request.POST.get('password', '')
+        ip = request.META.get('REMOTE_ADDR')
+        cache_key = f'login_intentos_{ip}_{username}'
+        intentos = cache.get(cache_key, 0)
+
+        if intentos >= 5:
+            bloqueado = True
+            error = f'Demasiados intentos. Espera 5 minutos.'
+        else:
+            user = authenticate(request, username=username, password=password)
+            if user:
+                cache.delete(cache_key)
+                login(request, user)
+                return redirect('main')
+            else:
+                cache.set(cache_key, intentos + 1, timeout=300)  # bloqueo 5 min
+                restantes = 5 - (intentos + 1)
+                error = f'Credenciales incorrectas. Intentos restantes: {restantes}'
+
+    return render(request, 'store/login_seguro.html', {
+        'error': error,
+        'bloqueado': bloqueado,
+    })
+    
+    
+    
+    # ─── SESIONES VULNERABLE ─────────────────────────────────────────────────────
+@login_required
+def sesion_vulnerable(request):
+    # ⚠️ Muestra el session ID completo y permite manipular datos de sesión
+    session_id = request.COOKIES.get('sessionid', 'No encontrado')
+    
+    # ⚠️ Permite escribir datos arbitrarios en la sesión desde la URL
+    clave = request.GET.get('set_key')
+    valor = request.GET.get('set_val')
+    if clave:
+        request.session[clave] = valor
+
+    datos_sesion = dict(request.session)
+
+    return render(request, 'store/sesion_vulnerable.html', {
+        'session_id': session_id,
+        'datos_sesion': datos_sesion,
+    })
+
+
+# ─── SESIONES SEGURA ─────────────────────────────────────────────────────────
+@login_required
+def sesion_segura(request):
+    # ✅ Solo muestra info necesaria, rota el session ID al cambiar datos
+    session_id_parcial = request.COOKIES.get('sessionid', '')[:8] + '...'  # solo primeros 8 chars
+
+    return render(request, 'store/sesion_segura.html', {
+        'session_id_parcial': session_id_parcial,
+        'usuario': request.user.username,
+        'ultimo_acceso': request.session.get('ultimo_acceso', 'Primera visita'),
+    })
+
+
+# ─── SESSION FIXATION VULNERABLE ─────────────────────────────────────────────
+def fixation_vulnerable(request):
+    # ⚠️ Acepta session ID desde la URL y NO lo rota tras el login
+    session_id_url = request.GET.get('sessionid')
+    if session_id_url:
+        request.session['forzado'] = True
+        # simula fijar la sesión
+        response = render(request, 'store/fixation_vulnerable.html', {
+            'session_id': request.session.session_key,
+            'forzado': session_id_url,
+        })
+        response.set_cookie('sessionid', session_id_url)  # ⚠️ fija la cookie
+        return response
+
+    return render(request, 'store/fixation_vulnerable.html', {
+        'session_id': request.session.session_key,
+        'forzado': None,
+    })
+
+
+# ─── SESSION FIXATION SEGURA ─────────────────────────────────────────────────
+def fixation_segura(request):
+    # ✅ Rota el session ID tras autenticar, ignora sessionid de la URL
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        user = authenticate(request, username=username, password=password)
+        if user:
+            # cycle_key() rota el session ID — previene session fixation
+            request.session.cycle_key()
+            login(request, user)
+            return redirect('main')
+
+    return render(request, 'store/fixation_segura.html')

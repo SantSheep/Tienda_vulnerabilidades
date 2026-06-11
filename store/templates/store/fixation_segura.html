@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Session Fixation Segura · TiendaTest</title>
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'store/css/main.css' %}">
+</head>
+<body class="app-body">
+  {% include 'store/navbar.html' %}
+  <div class="app-container">
+    <section class="panel-section">
+      <div class="section-header">
+        <h2>🛡️ Session Fixation Segura</h2>
+        <span class="badge badge-ok">Protegido</span>
+      </div>
+      <ul class="defense-list">
+        <li>✅ <code>session.cycle_key()</code> rota el session ID tras el login</li>
+        <li>✅ Session ID de la URL completamente ignorado</li>
+        <li>✅ Nuevo session ID generado en cada autenticación</li>
+      </ul>
+      <form method="POST" style="max-width:360px;margin-top:1.5rem">
+        {% csrf_token %}
+        <div class="form-group">
+          <label>Usuario</label>
+          <input type="text" name="username" required/>
+        </div>
+        <div class="form-group">
+          <label>Contraseña</label>
+          <input type="password" name="password" required/>
+        </div>
+        <button type="submit" class="btn btn-primary">Login seguro</button>
+      </form>
+      <div style="margin-top:1.5rem">
+        <h4>🔒 La clave de la defensa</h4>
+        <pre class="code-block"># Después de autenticar, rotar el session ID
+request.session.cycle_key()
+login(request, user)
+# El session ID anterior queda inválido</pre>
+      </div>
+    </section>
+  </div>
+</body>
+</html>

