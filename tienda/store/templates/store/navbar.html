@@ -1,0 +1,22 @@
+{% load static %}
+<nav class="navbar">
+  <div class="nav-brand">🛒 TiendaTest</div>
+  <div class="nav-links">
+    <a href="{% url 'main' %}" class="nav-link">🏠 Inicio</a>
+    {% if request.user.is_staff %}
+      <a href="{% url 'admin_panel' %}" class="nav-link">⚙️ Admin</a>
+    {% endif %}
+    <a href="{% url 'usuario_panel' %}" class="nav-link">🛍️ Tienda</a>
+    <a href="{% url 'buscar_vulnerable' %}" class="nav-link">🔍 Búsqueda</a>
+  </div>
+  <div class="nav-user">
+    <span class="nav-username">👤 {{ request.user.username }}</span>
+    {% if request.user.is_staff %}
+      <span class="badge badge-admin">Admin</span>
+    {% endif %}
+    <a href="{% url 'logout' %}" class="btn btn-ghost btn-sm">Salir</a>
+  </div>
+  
+  <!-- contador carrito, requerido por usuario.js -->
+  <span id="carrito-count" style="display:none">0</span>
+</nav>

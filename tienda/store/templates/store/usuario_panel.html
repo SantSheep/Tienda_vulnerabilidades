@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Tienda · TiendaTest</title>
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'store/css/main.css' %}">
+</head>
+<body class="app-body">
+
+  {% include 'store/navbar.html' %}
+
+  <div class="carrito-overlay" id="carrito-overlay" style="display:none" onclick="cerrarCarrito()"></div>
+  <aside class="carrito-panel" id="carrito-panel">
+    <div class="carrito-header">
+      <h3>Carrito</h3>
+      <button class="btn btn-ghost btn-sm" onclick="cerrarCarrito()">✕</button>
+    </div>
+    <div id="carrito-items" class="carrito-items">
+      <p class="empty-msg">El carrito está vacío</p>
+    </div>
+    <div class="carrito-footer">
+      <span><strong>Total: $<span id="carrito-total">0.00</span></strong></span>
+      <button class="btn btn-primary" onclick="realizarPedido()">Realizar pedido</button>
+    </div>
+    <div id="carrito-msg" class="alert" style="display:none; margin-top:0.75rem"></div>
+  </aside>
+
+  <div class="app-container">
+
+    <!-- PRODUCTOS -->
+    <section class="panel-section">
+      <div class="section-header">
+        <h2>Productos disponibles</h2>
+      </div>
+
+      {% if productos %}
+      <div class="productos-grid">
+        {% for p in productos %}
+        <div class="producto-card">
+          <div class="prod-info">
+            <h3>{{ p.nombre }}</h3>
+            {% if p.descripcion %}
+              <p class="prod-desc">{{ p.descripcion }}</p>
+            {% endif %}
+            <span class="prod-precio">${{ p.precio }}</span>
+            <span class="prod-stock">Stock: {{ p.stock }}</span>
+          </div>
+          <button class="btn btn-primary btn-sm"
+                  onclick="agregarAlCarrito({{ p.id }}, '{{ p.nombre }}', {{ p.precio }})">
+            Agregar
+          </button>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+        <p class="empty-msg">No hay productos disponibles por el momento.</p>
+      {% endif %}
+    </section>
+
+    <!-- MIS PEDIDOS -->
+    <section class="panel-section">
+      <div class="section-header">
+        <h2>Mis pedidos</h2>
+      </div>
+
+      <div class="table-wrap">
+        <table class="data-table" id="tabla-pedidos">
+          <thead>
+            <tr><th>#</th><th>Total</th><th>Estado</th><th>Fecha</th><th>Detalle</th></tr>
+          </thead>
+          <tbody>
+            {% for ped in pedidos %}
+            <tr>
+              <td>{{ ped.id }}</td>
+              <td>${{ ped.total }}</td>
+              <td><span class="badge badge-estado">{{ ped.estado }}</span></td>
+              <td>{{ ped.fecha|date:"d/m/Y H:i" }}</td>
+              <td>
+                {% for det in ped.detalles.all %}
+                  <small>{{ det.cantidad }}× {{ det.producto.nombre }}</small><br/>
+                {% endfor %}
+              </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="5" class="empty-msg">Aún no tienes pedidos</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- CSRF token para JS -->
+  <input type="hidden" id="csrf-token" value="{{ csrf_token }}">
+
+  <script src="{% static 'store/js/usuario.js' %}"></script>
+</body>
+</html>

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Inicio · TiendaTest</title>
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'store/css/main.css' %}">
+</head>
+<body class="app-body">
+
+  <!-- NAVBAR -->
+  {% include 'store/navbar.html' %}
+
+  <div class="app-container">
+
+    <div class="main-hero">
+      <h1>Panel de pruebas</h1>
+      <p>Selecciona una sección para comenzar</p>
+    </div>
+
+    <div class="main-grid">
+
+      {% if request.user.is_staff %}
+      <a href="{% url 'admin_panel' %}" class="main-card">
+        <span class="main-card-icon">⚙️</span>
+        <h3>Panel Admin</h3>
+        <p>Gestiona productos, pedidos y usuarios</p>
+        <span class="badge badge-admin">Solo admins</span>
+      </a>
+      {% endif %}
+
+      <a href="{% url 'usuario_panel' %}" class="main-card">
+        <span class="main-card-icon">🛍️</span>
+        <h3>Tienda</h3>
+        <p>Catálogo de productos y carrito de compras</p>
+        <span class="badge badge-ok">Disponible</span>
+      </a>
+
+      <a href="{% url 'buscar_vulnerable' %}" class="main-card main-card-danger">
+        <span class="main-card-icon">💉</span>
+        <h3>SQL Injection</h3>
+        <p>Búsqueda vulnerable para pruebas de inyección SQL</p>
+        <span class="badge badge-off">⚠️ Vulnerable</span>
+      </a>
+
+    </div>
+
+    <section class="panel-section" style="margin-top:1.5rem">
+      <div class="section-header">
+        <h2>Sesión actual</h2>
+      </div>
+      <div class="info-grid">
+        <div class="info-item">
+          <span class="info-label">Usuario</span>
+          <span class="info-value">{{ request.user.username }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Rol</span>
+          <span class="info-value">
+            {% if request.user.is_superuser %}Superusuario
+            {% elif request.user.is_staff %}Administrador
+            {% else %}Usuario{% endif %}
+          </span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Email</span>
+          <span class="info-value">{{ request.user.email|default:"No definido" }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Último acceso</span>
+          <span class="info-value">{{ request.user.last_login|date:"d/m/Y H:i" }}</span>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</body>
+</html>
